@@ -126,11 +126,11 @@ distuninstallcheck_listfiles = find . -type f -print
 am__distuninstallcheck_listfiles = $(distuninstallcheck_listfiles) \
   | sed 's|^\./|$(prefix)/|' | grep -v '$(infodir)/dir$$'
 distcleancheck_listfiles = find . -type f -print
-ACLOCAL = ${SHELL} /home/sadara/Desktop/libfnr/missing --run aclocal-1.11
+ACLOCAL = ${SHELL} /home/sadara/Desktop/tmp/libfnr/missing --run aclocal-1.11
 AMTAR = $${TAR-tar}
-AUTOCONF = ${SHELL} /home/sadara/Desktop/libfnr/missing --run autoconf
-AUTOHEADER = ${SHELL} /home/sadara/Desktop/libfnr/missing --run autoheader
-AUTOMAKE = ${SHELL} /home/sadara/Desktop/libfnr/missing --run automake-1.11
+AUTOCONF = ${SHELL} /home/sadara/Desktop/tmp/libfnr/missing --run autoconf
+AUTOHEADER = ${SHELL} /home/sadara/Desktop/tmp/libfnr/missing --run autoheader
+AUTOMAKE = ${SHELL} /home/sadara/Desktop/tmp/libfnr/missing --run automake-1.11
 AWK = mawk
 CC = gcc
 CCDEPMODE = depmode=gcc3
@@ -156,7 +156,7 @@ LDFLAGS =  -L/usr/local/ssl/lib
 LIBOBJS = 
 LIBS =  -lssl -lcrypto -ldl
 LTLIBOBJS = 
-MAKEINFO = ${SHELL} /home/sadara/Desktop/libfnr/missing --run makeinfo
+MAKEINFO = ${SHELL} /home/sadara/Desktop/tmp/libfnr/missing --run makeinfo
 MKDIR_P = /bin/mkdir -p
 OBJEXT = o
 PACKAGE = fnr
@@ -172,10 +172,10 @@ SET_MAKE =
 SHELL = /bin/bash
 STRIP = 
 VERSION = 1.0.0
-abs_builddir = /home/sadara/Desktop/libfnr
-abs_srcdir = /home/sadara/Desktop/libfnr
-abs_top_builddir = /home/sadara/Desktop/libfnr
-abs_top_srcdir = /home/sadara/Desktop/libfnr
+abs_builddir = /home/sadara/Desktop/tmp/libfnr
+abs_srcdir = /home/sadara/Desktop/tmp/libfnr
+abs_top_builddir = /home/sadara/Desktop/tmp/libfnr
+abs_top_srcdir = /home/sadara/Desktop/tmp/libfnr
 ac_ct_CC = gcc
 am__include = include
 am__leading_dot = .
@@ -194,7 +194,7 @@ host_alias =
 htmldir = ${docdir}
 includedir = ${prefix}/include
 infodir = ${datarootdir}/info
-install_sh = ${SHELL} /home/sadara/Desktop/libfnr/install-sh
+install_sh = ${SHELL} /home/sadara/Desktop/tmp/libfnr/install-sh
 libdir = ${exec_prefix}/lib
 libexecdir = ${exec_prefix}/libexec
 localedir = ${datarootdir}/locale
@@ -224,7 +224,7 @@ TODO.txt \
 LICENSE \
 preamble \
 test/generate_ipv4.py \
-test/raw-ips \
+test/raw-ips 
 
 all: config.h
 	$(MAKE) $(AM_MAKEFLAGS) all-recursive

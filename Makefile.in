@@ -224,7 +224,7 @@ TODO.txt \
 LICENSE \
 preamble \
 test/generate_ipv4.py \
-test/raw-ips \
+test/raw-ips 
 
 all: config.h
 	$(MAKE) $(AM_MAKEFLAGS) all-recursive
