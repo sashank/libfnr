@@ -1,0 +1,54 @@
+
+    libFNR - A reference implementation library for FNR encryption scheme.
+
+    FNR represents "Flexible Naor and Reingold" 
+
+    FNR is a small domain block cipher to encrypt small domain
+    objects ( < 128 bits ) like IPv4, MAC, Credit Card numbers etc.
+
+    FNR is designed by Sashank Dara (sadara@cisco.com), Scott Fluhrer (sfluhrer@cisco.com)
+
+    Copyright (C) 2014 , Cisco Systems Inc.
+
+    This library is free software; you can redistribute it and/or
+    modify it under the terms of the GNU Lesser General Public
+    License as published by the Free Software Foundation; either
+    version 2.1 of the License, or (at your option) any later version.
+
+    This library is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+    Lesser General Public License for more details.
+
+    You should have received a copy of the GNU Lesser General Public
+    License along with this library; if not, write to the Free Software
+    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
+
+
+Quick Tour of this package
+
+  README -- this file
+
+  INSTALL -- 
+  NOTE : openssl latest version (> openssl-1.0.1e) needs to be installed
+  Steps
+      source bootstrap.sh (optional)
+     ./configure --enable-debug=yes
+      make
+      make install
+
+   RUN
+     cd test
+     ./ipv4test -p password -t  tweak -f raw–ips
+
+  LICENSE -- LGPL (2.1) license copy under which this library is being released
+  HOWTO   -- How to write applications using libfnr
+  doc/Spec - Details of Encryption specification
+
+  src/fnr.c fnr.h has the core implementation of FNR 
+  test/test_ipv.c has the demo application on using FNR 
+   
+  Report bugs to <libfnr-dev@external.cisco.com>
+
+ IMPORTANT:  This is an *experimental* cipher, not for production yet. 
+
