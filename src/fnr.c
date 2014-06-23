@@ -31,8 +31,10 @@
 #include <string.h>
 #include <stdlib.h>
 #include "fnr.h"
+#include "openssl/conf.h"
 #include "openssl/aes.h"
 #include "openssl/evp.h"
+#include "openssl/err.h"
 
 #define N_ROUND  7 /* Number of Luby-Rackoff rounds we use */
                    /* Needs to be odd */
@@ -166,7 +168,7 @@ static int next_bit(struct pwip_stream *ctx) {
             /* tweak expansion, or during the LR rounds */
 
         //AES_encrypt(block, ctx->buffer, &ctx->key->expanded_aes_key);
-        encrypt(block,strlen(block),ctx->buffer, ctx->key->aes_key);
+        encrypt(block,strlen((char*) block),ctx->buffer, ctx->key->aes_key);
 
         ctx->index = 0; ctx->bit_count = 0;
     }
@@ -203,7 +205,7 @@ static unsigned next_bits(struct pwip_stream *ctx, int n) {
  * This uses the obvious rejection method: we select all 'n' bits; if they
  * are all zero, then we try again
  */
-static int next_bits_not_all_zero(struct pwip_stream *ctx, char *bits, int n_bits) {
+static int next_bits_not_all_zero(struct pwip_stream *ctx, unsigned char *bits, int n_bits) {
     if (n_bits == 1) {
         bits[0] = 1;
         return 0;
@@ -300,7 +302,8 @@ static int expand_red_green(struct pwip_stream *stream, element_t *A, element_t 
      * unique matrix (and all invertable matrices are possible), then all
      * invertable matrices are equiprobable
      */
-    struct gen_matrix *array = malloc( n * (n-1) * sizeof (struct gen_matrix) + 1 );
+    size_t array_byte_size = n * (n - 1) * sizeof (struct gen_matrix) + 1;
+    struct gen_matrix *array = malloc( array_byte_size );
     if (!array) return 0;
     int index = 0;
 #define SET(x, y, z)  (void)( array[index].type = x, array[index].a = y, array[index].b = z, index++ )
@@ -416,7 +419,7 @@ static int expand_red_green(struct pwip_stream *stream, element_t *A, element_t 
         multiply_gen_matrix( n, B, &array[i] );
     }
 
-    memset( array, 0, sizeof array );
+    memset( array, 0, array_byte_size );
     free(array);
 
     /*
@@ -510,8 +513,8 @@ fnr_expanded_key *FNR_expand_key(const void *aes_key, unsigned aes_key_size,
         return 0;
     }
    
-    key->aes_key = malloc(strlen(aes_key) + 1);    
-    strcpy(key->aes_key, aes_key);
+    key->aes_key = calloc(1, aes_key_size + 1);
+    memcpy(key->aes_key, aes_key, aes_key_size);
 
     /* Now the hard part; select an affine function, and its inverse */
     struct pwip_stream stream;
@@ -581,7 +584,7 @@ void FNR_expand_tweak(fnr_expanded_tweak *expanded_tweak,
         n = 0;
 
         //AES_encrypt(block, block, &key->expanded_aes_key);
-        encrypt(block,strlen(block),block, key->aes_key);
+        encrypt(block,strlen((char*) block),block, key->aes_key);
     } while (len_tweak > 0);
 
     memcpy( expanded_tweak, block, BLOCKSIZE-1 );
