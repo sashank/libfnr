@@ -33,6 +33,7 @@
 #include "fnr.h"
 #include "openssl/aes.h"
 #include "openssl/evp.h"
+#include "openssl/err.h"
 
 #define N_ROUND  7 /* Number of Luby-Rackoff rounds we use */
                    /* Needs to be odd */
