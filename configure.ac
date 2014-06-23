@@ -5,17 +5,22 @@
 
 AC_PREREQ([2.59])
 AC_INIT([fnr], [1.0.0], [libfnr-dev@external.cisco.com])
-AM_INIT_AUTOMAKE(fnr, 1.0.0)
+AM_INIT_AUTOMAKE([1.11 dist-bzip2 foreign -Wall -Werror])
 AC_CONFIG_SRCDIR([src/fnr.c])
 AC_CONFIG_HEADERS([config.h])
 
+m4_ifdef([AM_SILENT_RULES], [AM_SILENT_RULES([yes])])
 m4_include([config/check_ssl.m4])
 
 # Checks for programs.
 :${CFLAGS=""}
 AC_PROG_CC
-AC_PROG_RANLIB
 AM_PROG_CC_C_O
+
+# This did not exist pre AM 1.11.x (where x is somewhere >0 and <3),
+# but it is necessary in AM 1.12.x.
+m4_ifdef([AM_PROG_AR], [AM_PROG_AR])
+AC_PROG_RANLIB
 
 # Checks for libraries.
 AC_MSG_CHECKING(for libssl)
