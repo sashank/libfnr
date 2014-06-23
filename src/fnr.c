@@ -513,8 +513,8 @@ fnr_expanded_key *FNR_expand_key(const void *aes_key, unsigned aes_key_size,
         return 0;
     }
    
-    key->aes_key = malloc(strlen(aes_key) + 1);    
-    strcpy(key->aes_key, aes_key);
+    key->aes_key = calloc(1, aes_key_size + 1);
+    memcpy(key->aes_key, aes_key, aes_key_size);
 
     /* Now the hard part; select an affine function, and its inverse */
     struct pwip_stream stream;
