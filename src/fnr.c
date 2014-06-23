@@ -31,6 +31,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include "fnr.h"
+#include "openssl/conf.h"
 #include "openssl/aes.h"
 #include "openssl/evp.h"
 #include "openssl/err.h"
