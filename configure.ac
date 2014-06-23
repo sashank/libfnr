@@ -1,5 +1,7 @@
-#                                               -*- Autoconf -*-
-# Process this file with autoconf to produce a configure script.
+# -*- Autoconf -*-
+#
+# Copyright (c) 2014 Cisco Systems, Inc.
+#
 
 AC_PREREQ([2.59])
 AC_INIT([fnr], [1.0.0], [libfnr-dev@external.cisco.com])

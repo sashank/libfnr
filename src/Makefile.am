@@ -1,3 +1,5 @@
+# Copyright (c) 2014 Cisco Systems, Inc.
+
 noinst_LIBRARIES=libfnr.a
 libfnr_a_SOURCES=fnr.c fnr.h
 
