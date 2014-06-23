@@ -302,7 +302,8 @@ static int expand_red_green(struct pwip_stream *stream, element_t *A, element_t 
      * unique matrix (and all invertable matrices are possible), then all
      * invertable matrices are equiprobable
      */
-    struct gen_matrix *array = malloc( n * (n-1) * sizeof (struct gen_matrix) + 1 );
+    size_t array_byte_size = n * (n - 1) * sizeof (struct gen_matrix) + 1;
+    struct gen_matrix *array = malloc( array_byte_size );
     if (!array) return 0;
     int index = 0;
 #define SET(x, y, z)  (void)( array[index].type = x, array[index].a = y, array[index].b = z, index++ )
@@ -418,7 +419,7 @@ static int expand_red_green(struct pwip_stream *stream, element_t *A, element_t 
         multiply_gen_matrix( n, B, &array[i] );
     }
 
-    memset( array, 0, sizeof array );
+    memset( array, 0, array_byte_size );
     free(array);
 
     /*
