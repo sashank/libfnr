@@ -11,8 +11,6 @@ libfnr_a_LIBADD = $(LIBSSL)
 
 if DEBUG
     AM_CFLAGS = -g3 -O0
-    AM_CXXFLAGS = -g3 -O0
 else
     AM_CFLAGS = -O3
-    AM_CXXFLAGS = -O3
 endif
