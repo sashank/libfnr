@@ -205,7 +205,7 @@ static unsigned next_bits(struct pwip_stream *ctx, int n) {
  * This uses the obvious rejection method: we select all 'n' bits; if they
  * are all zero, then we try again
  */
-static int next_bits_not_all_zero(struct pwip_stream *ctx, char *bits, int n_bits) {
+static int next_bits_not_all_zero(struct pwip_stream *ctx, unsigned char *bits, int n_bits) {
     if (n_bits == 1) {
         bits[0] = 1;
         return 0;
