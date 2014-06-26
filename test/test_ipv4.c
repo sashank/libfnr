@@ -196,7 +196,7 @@ int main(int argc, char * argv[]) {
     //printf("CPU time used %f\n", cpu_time_used);
     printf("%d , %f\n",num_ip_addresses, cpu_time_used);
     free(p_raw_addr);
-    FNR_zeroize_key(key);
+    FNR_release_key(key);
     FNR_shut();
     return 0;
 }

@@ -40,7 +40,7 @@
                    /* Needs to be odd */
 #define BLOCKSIZE 16 /* AES has 16 bytes blocks.  This is here more for */
                    /* documentation, and not so much in case we change AES */
-typedef unsigned char element_t; /* Internally, the PWIP treat vectors as */
+typedef unsigned char element ; /* Internally, the PWIP treat vectors as */
 #define BITS_PER_ELEMENT 8 /* groups of 8 bit elements.  A more optimized */
                    /* version could use larger elements */
 #define ELEMENTS_PER_ROW(N) (((unsigned)N + BITS_PER_ELEMENT - 1) / BITS_PER_ELEMENT)
@@ -54,19 +54,21 @@ typedef unsigned char element_t; /* Internally, the PWIP treat vectors as */
 /* This means that the three ways we invoke AES never collide, and so */
 /* they can safely share the same key */
 
+#define SWAP 0
+#define XOR 1
 /*
  * This is the structure we use to store an expand key.  We also store the
  * arrays used to store the PWIP/invPWIP operations immediately after this
  * structure (in the same malloc block)
  */
-struct fnr_expanded_key {
+struct fnr_expanded_key_st {
     unsigned full_bytes;  /* Number of bytes that makes up the block, not */
         /* counting the last (even if the last is a full byte) */
     unsigned char final_mask;  /* Which bits of the last byte are part of the */
         /* block */
     unsigned full_elements; /* Number of elements that makes up the block, not */
         /* counting the last (even if the last is full) */
-    element_t final_element_mask;  /* Which bits of the last element are part of the */
+     element final_element_mask;  /* Which bits of the last element are part of the */
         /* block */
 
     unsigned num_bits;    /* Number of bits within the block */
@@ -74,42 +76,42 @@ struct fnr_expanded_key {
     AES_KEY expanded_aes_key; /* The expanded AES key */
    // unsigned char *aes_key = "01234567890123456"; /* user provided key */
     unsigned char *aes_key ; /* user provided key */
-    element_t *green;     /* Pointer to the inverse PWIP structure.  It's */
+    element  *green;     /* Pointer to the inverse PWIP structure.  It's */
                           /* actually allocated after this structure */
-    element_t red[1];     /* The array used for the forward PWIP structure */
+    element  red[1];     /* The array used for the forward PWIP structure */
 };
 
 /*
  * The encrypt method of AES
  *
  */
-int encrypt(unsigned char *plaintext,unsigned int plaintext_len, 
+static int encrypt(unsigned char *plaintext,unsigned int plaintext_len, 
   unsigned char *ciphertext , const unsigned char *key)
 {
   EVP_CIPHER_CTX *ctx;
 
-  int len ;
+  int len;
 
   int ciphertext_len;
 
   /* Create and initialise the context */
-  if(!(ctx = EVP_CIPHER_CTX_new())) handleErrors();
+  if (!(ctx = EVP_CIPHER_CTX_new())) FNR_handleErrors();
 
   /* Initialise the encryption operation.  */
-  if(1 != EVP_EncryptInit_ex(ctx, EVP_aes_128_ecb(), NULL, key, NULL))
-    handleErrors();
+  if (1 != EVP_EncryptInit_ex(ctx, EVP_aes_128_ecb(), NULL, key, NULL))
+    FNR_handleErrors();
 
   /* Provide the message to be encrypted, and obtain the encrypted output.
    * EVP_EncryptUpdate can be called multiple times if necessary
    */
-  if(1 != EVP_EncryptUpdate(ctx, ciphertext, &len, plaintext, plaintext_len))
-    handleErrors();
+  if (1 != EVP_EncryptUpdate(ctx, ciphertext, &len, plaintext, plaintext_len))
+    FNR_handleErrors();
   ciphertext_len = len;
 
   /* Finalise the encryption. Further ciphertext bytes may be written at
    * this stage.
    */
-  if(1 != EVP_EncryptFinal_ex(ctx, ciphertext + len, &len)) handleErrors();
+  if (1 != EVP_EncryptFinal_ex(ctx, ciphertext + len, &len)) FNR_handleErrors();
   ciphertext_len += len;
 
   /* Clean up */
@@ -118,7 +120,7 @@ int encrypt(unsigned char *plaintext,unsigned int plaintext_len,
   return ciphertext_len;
 }
 
-void handleErrors(void)
+void FNR_handleErrors(void)
 {
   ERR_print_errors_fp(stderr);
   abort();
@@ -138,14 +140,14 @@ void handleErrors(void)
  */
 struct pwip_stream {
     fnr_expanded_key *key;
-    unsigned num_bits;   /* The cipher block size */
+    size_t num_bits;   /* The cipher block size */
     unsigned count;      /* Which block we are currently at */
     unsigned index;      /* Which byte in buffer are current at */
     unsigned bit_count;  /* Which bit in buffer we are currently at */
     unsigned char buffer[BLOCKSIZE];
 };
 
-static void pwip(const fnr_expanded_key *key, const element_t *m, const void *in, void *out);
+static void pwip(const fnr_expanded_key *key, const element  *m, const void *in, void *out);
 
 /*
  * This returns the next bit from the stream generator
@@ -167,8 +169,7 @@ static int next_bit(struct pwip_stream *ctx) {
             /* will be distinct from either the AES evaluations we do during */
             /* tweak expansion, or during the LR rounds */
 
-        //AES_encrypt(block, ctx->buffer, &ctx->key->expanded_aes_key);
-        encrypt(block,strlen((char*) block),ctx->buffer, ctx->key->aes_key);
+        encrypt(block,strlen(block),ctx->buffer, ctx->key->aes_key);
 
         ctx->index = 0; ctx->bit_count = 0;
     }
@@ -225,6 +226,7 @@ static int next_bits_not_all_zero(struct pwip_stream *ctx, unsigned char *bits, 
     return first_nonzero;
 }
 
+
 /*
  * This structure represents an NxN matrix of a specific form:
  * If type == SWAP, then the matrix has the form:
@@ -247,8 +249,6 @@ static int next_bits_not_all_zero(struct pwip_stream *ctx, unsigned char *bits, 
  */
 struct gen_matrix {
     unsigned char type;
-#define SWAP 0
-#define XOR 1
     unsigned char a;
     unsigned char b;
 };
@@ -257,7 +257,7 @@ struct gen_matrix {
  * This takes the NxN matrix at A, and right multiplies it by the matrix
  * represented by sub
  */
-static void multiply_gen_matrix( int N, element_t *A, struct gen_matrix *sub) {
+static void multiply_gen_matrix( int N, element *A, struct gen_matrix *sub) {
     int elements_per_row = ELEMENTS_PER_ROW(N);
     int a_row = elements_per_row * (sub->a + 1);
     int b_row = elements_per_row * (sub->b + 1);
@@ -266,7 +266,7 @@ static void multiply_gen_matrix( int N, element_t *A, struct gen_matrix *sub) {
     switch (sub->type) {
     case SWAP:
         for (i=0; i<elements_per_row; i++, a_row++, b_row++) {
-            element_t t = A[ a_row ]; A[ a_row ] = A[ b_row ]; A[ b_row ] = t;
+           element  t = A[ a_row ]; A[ a_row ] = A[ b_row ]; A[ b_row ] = t;
         }
         break;
     case XOR:
@@ -274,6 +274,8 @@ static void multiply_gen_matrix( int N, element_t *A, struct gen_matrix *sub) {
             A[ b_row ] ^= A[ a_row ];
         }
         break;
+    default:
+	break;
     }
 }
 
@@ -281,7 +283,7 @@ static void multiply_gen_matrix( int N, element_t *A, struct gen_matrix *sub) {
  * This does the hard work of selecting an arbitary affine function is the PWIP
  * (A), and the inverse of that function as the inverse (B)
  */
-static int expand_red_green(struct pwip_stream *stream, element_t *A, element_t *B,
+static int expand_red_green(struct pwip_stream *stream,element  *A,element  *B,
                             unsigned n) {
     /*
      * First of all, we select an invertible matrix.  We do this by simulating
@@ -419,7 +421,7 @@ static int expand_red_green(struct pwip_stream *stream, element_t *A, element_t 
         multiply_gen_matrix( n, B, &array[i] );
     }
 
-    memset( array, 0, array_byte_size );
+    memset(array, 0, array_byte_size );
     free(array);
 
     /*
@@ -446,7 +448,7 @@ static int expand_red_green(struct pwip_stream *stream, element_t *A, element_t 
      * direction, we compute InvPWIP(V) = InvM*V + InvC
      */
     /* Set the constant vector assigned to the B operation to 0 */
-    memset( &B[0], 0, elements_per_row * sizeof(element_t) );
+    memset( &B[0], 0, elements_per_row * sizeof(element) );
 
     /*
      * Now, take the constant vector assigned to A (which is at the beginning
@@ -470,11 +472,11 @@ static int expand_red_green(struct pwip_stream *stream, element_t *A, element_t 
  * This takes an AES key (and a block size), and expands it, setting all the 
  * internal parameters (and the PWIP matrices, which is most of the work)
  */
-fnr_expanded_key *FNR_expand_key(const void *aes_key, unsigned aes_key_size,
-                                 unsigned num_bits) {
+fnr_expanded_key *FNR_expand_key(const void *aes_key, unsigned int aes_key_size,
+                                 size_t num_bits) {
     if (num_bits < 1 || num_bits > 128) {
         /* Parameter out of range */
-        return 0;
+        return NULL;
     }
 
     /*
@@ -486,7 +488,7 @@ fnr_expanded_key *FNR_expand_key(const void *aes_key, unsigned aes_key_size,
     size_t size = sizeof(fnr_expanded_key) + 2 * elements_per_row * (num_bits + 1);
     fnr_expanded_key *key = malloc( size );
     if (!key) {
-        return 0;
+        return NULL;
     }
 
     /* Store the various blocksize-dependent constants */
@@ -494,11 +496,11 @@ fnr_expanded_key *FNR_expand_key(const void *aes_key, unsigned aes_key_size,
     /* The number of bytes (not counting the last byte) */ 
     key->full_bytes = (num_bits-1)/8;
     /* The number of elements (not counting the last one */ 
-    key->full_elements = key->full_bytes;  /* element_t == unsigned char */
+    key->full_elements = key->full_bytes;  /*element  == unsigned char */
     /* The bits that are used in the last byte */
     key->final_mask = 0xff & ((1<<((num_bits+7)%8 + 1)) - 1);
     /* The number of elements (not counting the last one */ 
-    key->final_element_mask = key->final_mask;  /* element_t == unsigned char */
+    key->final_element_mask = key->final_mask;  /*  == unsigned char */
     /* The size of the block (in bits) */
     key->num_bits = num_bits;
     /* The size of the structure */
@@ -510,7 +512,7 @@ fnr_expanded_key *FNR_expand_key(const void *aes_key, unsigned aes_key_size,
     /* Expand the AES key */
     if (AES_set_encrypt_key(aes_key, aes_key_size, &key->expanded_aes_key) != 0) {
         free(key);
-        return 0;
+        return NULL;
     }
    
     key->aes_key = calloc(1, aes_key_size + 1);
@@ -525,7 +527,7 @@ fnr_expanded_key *FNR_expand_key(const void *aes_key, unsigned aes_key_size,
 
     if (!expand_red_green( &stream, key->red, key->green, num_bits )) {
         free(key);
-        return 0;
+        return NULL;
     }
 
     /* Ok, all done; erase any incriminating evidence and get out */
@@ -537,7 +539,7 @@ fnr_expanded_key *FNR_expand_key(const void *aes_key, unsigned aes_key_size,
 /*
  * Safely get rid of an expanded key
  */
-void FNR_zeroize_key (fnr_expanded_key *key)
+void FNR_release_key (fnr_expanded_key *key)
 {
     if (!key) return;
     memset( key, 0, key->size );
@@ -583,8 +585,7 @@ void FNR_expand_tweak(fnr_expanded_tweak *expanded_tweak,
 
         n = 0;
 
-        //AES_encrypt(block, block, &key->expanded_aes_key);
-        encrypt(block,strlen((char*) block),block, key->aes_key);
+        encrypt(block,strlen(block),block, key->aes_key);
     } while (len_tweak > 0);
 
     memcpy( expanded_tweak, block, BLOCKSIZE-1 );
@@ -617,11 +618,11 @@ void FNR_expand_tweak(fnr_expanded_tweak *expanded_tweak,
  * - Then, each successive elements_per_row set of elements this the next
  *   row of the matrix; there are N of these rows
  */
-static void pwip(const fnr_expanded_key *key, const element_t *m,
+static void pwip(const fnr_expanded_key *key, const element *m,
                  const void *in, void *out) {
     unsigned i, j;
     const unsigned char *input = in;
-    element_t *result = out;
+    element *result = out;
 
     /*
      * Initialize the output with the constant vector
@@ -645,7 +646,7 @@ static void pwip(const fnr_expanded_key *key, const element_t *m,
     unsigned num_bits = key->num_bits;
     for (i=0; i<num_bits; i++) {
         if (i % BITS_PER_ELEMENT == 0) a = *input++;
-        element_t mask = -(a&1);  /* Assumes two's complement */
+        element mask = -(a&1);  /* Assumes two's complement */
         a >>= 1;
         /*
          * Here, mask == 0 if the bit is 0, mask == 0xff if the bit is one
@@ -663,7 +664,7 @@ static void pwip(const fnr_expanded_key *key, const element_t *m,
  * This is the actual cipher implementation.  The encrypt and the decrypt
  * operations are identical, except for the order of the subkeys
  */
-static void FNR_operate(const fnr_expanded_key *key, fnr_expanded_tweak *tweak,
+static void FNR_operate(const fnr_expanded_key *key,const fnr_expanded_tweak *tweak,
                         const void *in, void *out, int round, int round_inc ) {
     unsigned char text[BLOCKSIZE] = { 0 };
 
@@ -767,25 +768,25 @@ static void FNR_operate(const fnr_expanded_key *key, fnr_expanded_tweak *tweak,
     memset( text, 0, sizeof text );
 }
 
-void FNR_init(){
+void FNR_init(void){
    /* Initialise the library */
   ERR_load_crypto_strings();
   OpenSSL_add_all_algorithms();
   OPENSSL_config(NULL);
 }
 
-void FNR_shut(){
+void FNR_shut(void){
     /* Clean up */
   EVP_cleanup();
   ERR_free_strings();
 }
 
-void FNR_encrypt( fnr_expanded_key *key, fnr_expanded_tweak *tweak, const void *plaintext, void *ciphertext) {
+void FNR_encrypt(const fnr_expanded_key *key,const fnr_expanded_tweak *tweak, const void *plaintext, void *ciphertext) {
     /* Run the cipher, going through rounds 1,2,3,4,5,6,7 */
     FNR_operate( key, tweak, plaintext, ciphertext, 1, 1 );
 }
 
-void FNR_decrypt( fnr_expanded_key *key, fnr_expanded_tweak *tweak, const void *ciphertext, void *plaintext) {
+void FNR_decrypt(const fnr_expanded_key *key,const fnr_expanded_tweak *tweak, const void *ciphertext, void *plaintext) {
     /* Run the cipher, going through rounds 7,6,5,4,3,2,1 */
     FNR_operate( key, tweak, ciphertext, plaintext, N_ROUND, -1 );
 }

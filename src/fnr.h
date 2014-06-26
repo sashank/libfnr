@@ -27,8 +27,8 @@
 *    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 *
 **/
-#if !defined(FE_H__)
-#define FE_H__
+#ifndef HEADER_FNR_H_
+#define HEADER_FNR_H_
 
 /*
  * This is a utility to do small block encryption, with a variable sized block
@@ -127,21 +127,19 @@
  *
  * Step last: when you're done with the key, you discard it with:
  *
- *     FNR_zeroize_key(key);
+ *     FNR_release_key(key);
  *
- * (there's no need to zeroize the expanded tweak)
+ * (there's no need to release the expanded tweak)
  */
 
-#include "openssl/aes.h"
-
 /* The structure of an expanded key; its contents are private */
-typedef struct fnr_expanded_key fnr_expanded_key;
+typedef struct fnr_expanded_key_st fnr_expanded_key;
 
 /*
  * This is the 'expanded tweak'; that is, the tweak summarized in a form that
  * we can give to the encryption/decryption routine
  */
-typedef struct fnr_expanded_tweak {
+typedef struct fnr_expanded_tweak_st{
     unsigned char tweak[15];
 } fnr_expanded_tweak;
 
@@ -159,16 +157,16 @@ typedef struct fnr_expanded_tweak {
  *           allowed)
  * This returns the expanded key on success, NULL on failure
  */
-fnr_expanded_key *FNR_expand_key(const void *aes_key, unsigned aes_key_size,
-                                unsigned num_text_bits);
+fnr_expanded_key *FNR_expand_key(const void *aes_key, unsigned int aes_key_size,
+                                size_t num_text_bits);
 
 /*
  * This frees an expanded key.  It should be called when you're done with the key
  * (as the key expansion malloc's memory)
  * Parameters:
- * key - The expanded key to deallocate (and zeroize)
+ * key - The expanded key to deallocate (and release)
  */
-void FNR_zeroize_key(fnr_expanded_key *key);
+void FNR_release_key(fnr_expanded_key *key);
 
 /*
  * This takes a tweak, and expands it
@@ -186,17 +184,13 @@ void FNR_expand_tweak(fnr_expanded_tweak *expanded_tweak,
  * This method initializes and loads the needed algos
  * and sets the stage
  */
-void FNR_init();
+void FNR_init(void);
 
 /*
- * This method initializes and loads the needed algos
- * and sets the stage
+ * This method  frees up and cleans 
  */
 
-void FNR_shut();
-/*
- * This method initializes and loads the needed algos
- */
+void FNR_shut(void);
 /*
  * This encrypts a message using the expanded key and tweak
  * Parameters:
@@ -207,7 +201,7 @@ void FNR_shut();
  *
  * Encrypting in place (plaintext==ciphertext) is allowed
  */
-void FNR_encrypt(fnr_expanded_key *key, fnr_expanded_tweak *tweak,
+void FNR_encrypt(const fnr_expanded_key *key,const fnr_expanded_tweak *tweak,
                  const void *plaintext, void *ciphertext);
 /*
  * This decrypts a message using the expanded key and tweak
@@ -219,8 +213,8 @@ void FNR_encrypt(fnr_expanded_key *key, fnr_expanded_tweak *tweak,
  *
  * Decrypting in place (ciphertext==plaintext) is allowed
  */
-void FNR_decrypt(fnr_expanded_key *key, fnr_expanded_tweak *tweak,
+void FNR_decrypt(const fnr_expanded_key *key, const fnr_expanded_tweak *tweak,
                  const void *ciphertext, void *plaintext);
 
-void handleErrors(void) ;
-#endif /* FE_H__ */
+void FNR_handleErrors(void) ;
+#endif /* HEADER_FNR_H_ */
