@@ -75,6 +75,7 @@ int main(int argc, char * argv[]) {
     FILE * f;
     unsigned int *p_raw_addr = NULL, raw_addr, encrypted_addr;
     unsigned int num_ip_addresses = 0, loop_count = 0;
+    char *no_ip_str;
 #ifdef DEBUG
     char *ip_address_str = NULL;
 #endif
@@ -134,14 +135,15 @@ int main(int argc, char * argv[]) {
     fnr_expanded_tweak tweak;
     FNR_expand_tweak(&tweak, key, (void*)tweak_str, strlen(tweak_str));
 
-    ret = fscanf(f, "%d", &num_ip_addresses);
+    fgets(no_ip_str, 10, f);
+    num_ip_addresses = atoi(no_ip_str);
     p_raw_addr = (unsigned int *)malloc(sizeof(int)* num_ip_addresses);
     if(NULL == p_raw_addr){
         fprintf(stderr,"Cannot allocate memory for %d IP addresses\n", num_ip_addresses);
         exit(-3);
     }
 
-    while(fscanf(f, "%s", ip_str) != EOF) {
+    while(fgets(ip_str, 16 , f) != NULL) {
         p_raw_addr[loop_count] = ipv4_rank(ip_str);
         memset(ip_str, 0, 16);
         ++loop_count;
