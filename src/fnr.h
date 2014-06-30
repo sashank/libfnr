@@ -216,5 +216,7 @@ void FNR_encrypt(const fnr_expanded_key *key,const fnr_expanded_tweak *tweak,
 void FNR_decrypt(const fnr_expanded_key *key, const fnr_expanded_tweak *tweak,
                  const void *ciphertext, void *plaintext);
 
-void FNR_handleErrors(void) ;
+void FNR_handle_errors(void);
+
+void FNR_burn( void *v, size_t n );
 #endif /* HEADER_FNR_H_ */

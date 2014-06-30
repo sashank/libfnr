@@ -145,7 +145,7 @@ int main(int argc, char * argv[]) {
 
     while(fgets(ip_str, 16 , f) != NULL) {
         p_raw_addr[loop_count] = ipv4_rank(ip_str);
-        memset(ip_str, 0, 16);
+        FNR_burn(ip_str, 16);
         ++loop_count;
     }
 

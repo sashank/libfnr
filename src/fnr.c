@@ -95,23 +95,23 @@ static int encrypt(unsigned char *plaintext,unsigned int plaintext_len,
   int ciphertext_len;
 
   /* Create and initialise the context */
-  if (!(ctx = EVP_CIPHER_CTX_new())) FNR_handleErrors();
+  if (!(ctx = EVP_CIPHER_CTX_new())) FNR_handle_errors();
 
   /* Initialise the encryption operation.  */
   if (1 != EVP_EncryptInit_ex(ctx, EVP_aes_128_ecb(), NULL, key, NULL))
-    FNR_handleErrors();
+    FNR_handle_errors();
 
   /* Provide the message to be encrypted, and obtain the encrypted output.
    * EVP_EncryptUpdate can be called multiple times if necessary
    */
   if (1 != EVP_EncryptUpdate(ctx, ciphertext, &len, plaintext, plaintext_len))
-    FNR_handleErrors();
+    FNR_handle_errors();
   ciphertext_len = len;
 
   /* Finalise the encryption. Further ciphertext bytes may be written at
    * this stage.
    */
-  if (1 != EVP_EncryptFinal_ex(ctx, ciphertext + len, &len)) FNR_handleErrors();
+  if (1 != EVP_EncryptFinal_ex(ctx, ciphertext + len, &len)) FNR_handle_errors();
   ciphertext_len += len;
 
   /* Clean up */
@@ -120,7 +120,18 @@ static int encrypt(unsigned char *plaintext,unsigned int plaintext_len,
   return ciphertext_len;
 }
 
-void FNR_handleErrors(void)
+/*
+   The source code for clearing sensitive information is as recommended by
+   crypto coding guide lines
+   https://cryptocoding.net/index.php/Coding_rules#Clean_memory_of_secret_data
+ */
+void FNR_burn( void *v, size_t n )
+{
+  volatile unsigned char *p = ( volatile unsigned char * )v;
+  while( n-- ) *p++ = 0;
+}
+
+void FNR_handle_errors(void)
 {
   ERR_print_errors_fp(stderr);
   abort();
@@ -367,7 +378,7 @@ static int expand_red_green(struct pwip_stream *stream,element  *A,element  *B,
          * columns
          */
     }
-    memset( bits, 0, sizeof bits );
+    FNR_burn( bits, sizeof bits );
 
     /*
      * At this point, the simulated matrix is now the identity, and (here's the
@@ -382,8 +393,8 @@ static int expand_red_green(struct pwip_stream *stream,element  *A,element  *B,
      */
     int elements_per_row = ELEMENTS_PER_ROW(n);
 
-    memset( &A[elements_per_row], 0, n * elements_per_row );
-    memset( &B[elements_per_row], 0, n * elements_per_row );
+    FNR_burn( &A[elements_per_row],  n * elements_per_row );
+    FNR_burn( &B[elements_per_row],  n * elements_per_row );
     unsigned char bit = 0;
     int column = -1;
     for (i=0; i<n; i++) {
@@ -421,7 +432,7 @@ static int expand_red_green(struct pwip_stream *stream,element  *A,element  *B,
         multiply_gen_matrix( n, B, &array[i] );
     }
 
-    memset(array, 0, array_byte_size );
+    FNR_burn(array,  array_byte_size );
     free(array);
 
     /*
@@ -448,7 +459,7 @@ static int expand_red_green(struct pwip_stream *stream,element  *A,element  *B,
      * direction, we compute InvPWIP(V) = InvM*V + InvC
      */
     /* Set the constant vector assigned to the B operation to 0 */
-    memset( &B[0], 0, elements_per_row * sizeof(element) );
+    FNR_burn( &B[0],  elements_per_row * sizeof(element) );
 
     /*
      * Now, take the constant vector assigned to A (which is at the beginning
@@ -531,7 +542,7 @@ fnr_expanded_key *FNR_expand_key(const void *aes_key, unsigned int aes_key_size,
     }
 
     /* Ok, all done; erase any incriminating evidence and get out */
-    memset( &stream, 0, sizeof stream );
+    FNR_burn( &stream, sizeof stream );
 
     return key;
 }
@@ -542,7 +553,7 @@ fnr_expanded_key *FNR_expand_key(const void *aes_key, unsigned int aes_key_size,
 void FNR_release_key (fnr_expanded_key *key)
 {
     if (!key) return;
-    memset( key, 0, key->size );
+    FNR_burn( key, key->size );
     free(key);
 }
 
@@ -589,7 +600,7 @@ void FNR_expand_tweak(fnr_expanded_tweak *expanded_tweak,
     } while (len_tweak > 0);
 
     memcpy( expanded_tweak, block, BLOCKSIZE-1 );
-    memset( block, 0, sizeof block );
+    FNR_burn( block, sizeof block );
 }
 
 /*
@@ -764,8 +775,8 @@ static void FNR_operate(const fnr_expanded_key *key,const fnr_expanded_tweak *tw
     pwip( key, key->green, text, out );
 
     /* Zeroize temp data; it's good crypto hygiene */
-    memset( block, 0, sizeof block );
-    memset( text, 0, sizeof text );
+    FNR_burn( block, sizeof block );
+    FNR_burn( text,  sizeof text );
 }
 
 void FNR_init(void){
