@@ -169,7 +169,7 @@ static int next_bit(struct pwip_stream *ctx) {
             /* will be distinct from either the AES evaluations we do during */
             /* tweak expansion, or during the LR rounds */
 
-        encrypt(block,strlen(block),ctx->buffer, ctx->key->aes_key);
+        encrypt(block,4,ctx->buffer, ctx->key->aes_key);
 
         ctx->index = 0; ctx->bit_count = 0;
     }
@@ -583,9 +583,9 @@ void FNR_expand_tweak(fnr_expanded_tweak *expanded_tweak,
             /* will be distinct from either the AES evaluations we do during */
             /* PWIP selection, or during the LR rounds */
 
+        encrypt(block,n+1,block, key->aes_key);
         n = 0;
 
-        encrypt(block,strlen(block),block, key->aes_key);
     } while (len_tweak > 0);
 
     memcpy( expanded_tweak, block, BLOCKSIZE-1 );
