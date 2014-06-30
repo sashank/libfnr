@@ -1,4 +1,5 @@
-1. Fix Bugs, if any
-2. Support more Data formats like MAC Addresses, IPv6, SSNs, URLs, Filepaths etc.
-3. Support more languages, platforms like Java, Javascript, C++ etc.
+Fix Bugs, if any in both core code and test code
+Good unit test coverage
+Support more Data formats like MAC Addresses, IPv6, SSNs, URLs, Filepaths etc.
+Support more languages, platforms like Java, Javascript, C++ etc.
  
