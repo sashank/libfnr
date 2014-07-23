@@ -158,6 +158,9 @@ struct pwip_stream {
     unsigned char buffer[BLOCKSIZE];
 };
 
+/* To ensure round function is different for each round */
+static const unsigned char round_const[7] = { 0x00, 0x03, 0x0c, 0x0f, 0x30, 0x33, 0x3c };
+
 static void pwip(const fnr_expanded_key *key, const element  *m, const void *in, void *out);
 
 /*
@@ -726,7 +729,7 @@ static void FNR_operate(const fnr_expanded_key *key,const fnr_expanded_tweak *tw
          * round index so that this block is different for every round)
          */
         memcpy( block, tweak, BLOCKSIZE-1 );
-        block[BLOCKSIZE-1] = round; /* Slide attacks; just say no */
+        block[BLOCKSIZE-1] = round_const[round]; /* Slide attacks; just say no */
 
         /*
          * Step 2: xor in the bits from the 'active bits' from the block
@@ -743,7 +746,6 @@ static void FNR_operate(const fnr_expanded_key *key,const fnr_expanded_tweak *tw
          * ciphertext block that is a complex function of the tweak, the round
          * number and the stirred in data bits
          */
-        //AES_encrypt(block, block, &key->expanded_aes_key);
         encrypt(block,input_len,block, key->aes_key);
 
         /*
