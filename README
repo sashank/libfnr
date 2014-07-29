@@ -1,16 +1,10 @@
 
-    libFNR - A reference implementation library for FNR encryption scheme.
+  libFNR - A reference implementation library for FNR encryption scheme.
 
-    FNR represents "Flexible Naor and Reingold" 
+  FNR represents "Flexible Naor and Reingold" 
 
-    FNR is a small domain block cipher to encrypt small domain
+  FNR is a small domain block cipher to encrypt small domain
     objects ( < 128 bits ) like IPv4, MAC, Credit Card numbers etc.
-
-    FNR is designed by 
-      Sashank Dara (sadara@cisco.com), 
-      Scott Fluhrer (sfluhrer@cisco.com)
-
-    Copyright (C) 2014 , Cisco Systems Inc.
 
   Quick Tour of this package
 
@@ -40,3 +34,9 @@
  
  FNR has been accepted for publication in
    Fourth International Conference on Security, Privacy, and Applied Cryptography Engineering (SPACE 2014)
+
+ FNR is designed by 
+      Sashank Dara (sadara@cisco.com), 
+      Scott Fluhrer (sfluhrer@cisco.com)
+
+ Copyright (C) 2014 , Cisco Systems Inc.
