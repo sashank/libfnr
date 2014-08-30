@@ -1,7 +1,7 @@
 /*
-*    libFNR - A reference implementation library for FNR encryption mode.
+*    libFNR - A reference implementation library for FNR encryption scheme.
 *
-*    FNR represents "Flexible Naor and Reingold" mode
+*    FNR represents "Flexible Naor and Reingold" 
 
 *    FNR is a small domain block cipher to encrypt small domain
 *    objects ( < 128 bits ) like IPv4, MAC, Credit Card numbers etc.
@@ -443,7 +443,6 @@ static int expand_red_green(struct pwip_stream *stream,element  *A,element  *B,
      * constant vector.  In the forward direction, pick it based on the stream
      */
     column = -1;
-    int shift = 0;
     for (i=0; i<n; i+=8) {
         int bits_this_time = n-i; if (bits_this_time > 8) bits_this_time = 8;
         A[i/8] = next_bits(stream, bits_this_time);

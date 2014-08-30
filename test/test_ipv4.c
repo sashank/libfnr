@@ -1,7 +1,7 @@
 /*
-*    libFNR - A reference implementation library for FNR encryption mode.
+*    libFNR - A reference implementation library for FNR encryption .
 *
-*    FNR represents "Flexible Naor and Reingold" mode
+*    FNR represents "Flexible Naor and Reingold" 
 
 *    FNR is a small domain block cipher to encrypt small domain
 *    objects ( < 128 bits ) like IPv4, MAC, Credit Card numbers etc.
