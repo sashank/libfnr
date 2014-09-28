@@ -9,3 +9,6 @@ LICENSE \
 preamble \
 test/generate_ipv4.py \
 test/raw-ips 
+
+ACLOCAL_AMFLAGS = -I m4
+
