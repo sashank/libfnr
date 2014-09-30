@@ -12,7 +12,6 @@ AC_CONFIG_HEADERS([config.h])
 AC_CONFIG_MACRO_DIR([m4])
 
 m4_ifdef([AM_SILENT_RULES], [AM_SILENT_RULES([yes])])
-m4_include([config/check_ssl.m4])
 
 # Checks for programs.
 :${CFLAGS=""}
@@ -23,44 +22,44 @@ AM_PROG_CC_C_O
 # but it is necessary in AM 1.12.x.
 m4_ifdef([AM_PROG_AR], [AM_PROG_AR])
 
-# Checks for libraries.
-AC_MSG_CHECKING(for libssl)
-with_ssl=no
-AC_ARG_WITH(libssl, AC_HELP_STRING(--with-libssl=DIR,use libssl in DIR),
-[ case "$withval" in
-  no)
-     AC_MSG_RESULT(no)
-     ;;
-  *)
-     AC_MSG_RESULT(yes)
-     with_ssl=$withval
-     if test "x$enable_win32" = "xyes"; then	
-     	CFLAGS="$CFLAGS -I$with_ssl/include"
-     	CXXFLAGS="$CXXFLAGS -I$with_ssl/include"
-     	LIBS="$LIBS -L$with_ssl/lib/MinGW"
-	LIBS_END="$LIBS_END -leay32"
-     else
-	CFLAGS="$CFLAGS -I$with_ssl/include"
-        AC_CHECK_LIB(dl, dlopen, [LIBDL=-ldl])
-     	CXXFLAGS="$CXXFLAGS -I$with_ssl/include"
-	LIBS="$LIBS -L$with_ssl/lib -lssl -lcrypto $LIBDL"
-     fi
-     ;;
-  esac ]
-)
+# SSL options
+AC_ARG_WITH([libssl], AC_HELP_STRING([--with-libssl=DIR], [use libssl in DIR]),
+            [], [with_libssl=yes])
+AS_CASE([$with_libssl],
+    [yes], [],
+    [no],  [AC_MSG_NOTICE([libfnr requires libssl -- specifying --without-libssl is disallowed])
+            AC_MSG_ERROR([Cannot continue])],
+    [AS_IF([test ! -d "$with_libssl"],
+           [AC_MSG_NOTICE([Supplied SSL directory $with_libssl does not exist])
+            AC_MSG_ERROR([Cannot continue])])
+     AS_IF([test ! -d "$with_libssl/include"],
+           [AC_MSG_NOTICE([Supplied SSL directory $with_libssl/include does not exist])
+            AC_MSG_ERROR([Cannot continue])])
+     CPPFLAGS="$CPPFLAGS -I$with_libssl/include"
+     CXXCPPFLAGS="$CXXCPPFLAGS -I$with_libssl/include"
 
-if test "x$with_ssl" = "xno"; then
-   CHECK_SSL
-fi
+     AS_IF([test -d "$with_libssl/lib"], [LDFLAGS="-L$with_libssl/lib"],
+         [AS_IF([test -d "$with_libssl/lib64"],
+              [LDFLAGS="-L$with_libssl/lib64"],
+              [AC_MSG_NOTICE([Cannot find $with_libssl/lib or $with_libssl/lib64])
+               AC_MSG_ERROR([Cannot continute])])
+         ])
+    ])
 
 # Checks for header files.
 AC_CHECK_HEADERS([string.h])
+AC_CHECK_HEADER([openssl/aes.h], [],
+    [AC_MSG_NOTICE([Cannot find openssl/aes.h])
+     AC_MSG_ERROR([Cannot continue])])
 
 # Checks for typedefs, structures, and compiler characteristics.
 
 # Checks for library functions.
 AC_FUNC_MALLOC
 AC_CHECK_FUNCS([memset])
+AC_CHECK_LIB([ssl], [AES_set_encrypt_key], [],
+    [AC_MSG_NOTICE([Cannot find libssl])
+     AC_MSG_ERROR([Cannot continue])])
 
 LT_INIT
 
