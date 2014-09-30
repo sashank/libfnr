@@ -6,10 +6,6 @@
   FNR is a small domain block cipher for encrypting
     objects ( < 128 bits ) like IPv4, MAC, Credit Card numbers etc.
 
-  Quick Tour of this package
-
-  README -- this file
-
   INSTALL -- 
   NOTE : openssl latest version (> openssl-1.0.1e) needs to be installed
   Steps
@@ -21,22 +17,18 @@
      cd test
      ./ipv4test -p password -t  tweak -f raw–ips
 
-  LICENSE -- LGPL (2.1) license copy under which this library is being released
-  HOWTO   -- How to write applications using libfnr
-  doc/Spec - Details of Encryption specification
-
-  src/fnr.c fnr.h has the core implementation of FNR 
-  test/test_ipv4.c has the demo application on using FNR 
-   
-  Report bugs to <libfnr-dev@external.cisco.com>
-
   IMPORTANT:  This is an *experimental* cipher, not for production yet. 
  
-  Applications of this scheme could be found at
+  Motivation and Applications of this scheme could be found at
 	http://sashank.github.io/libfnr/
 
   Java extensions for this library could be found at
 	https://github.com/sashank/jfnr
+
+  Details of the Specification could be found in
+	doc/Spec directory
+
+  Report bugs to <libfnr-dev@external.cisco.com>
 
   FNR is designed by 
       Sashank Dara (sadara@cisco.com), 
