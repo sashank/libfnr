@@ -26,7 +26,7 @@
   doc/Spec - Details of Encryption specification
 
   src/fnr.c fnr.h has the core implementation of FNR 
-  test/test_ipv.c has the demo application on using FNR 
+  test/test_ipv4.c has the demo application on using FNR 
    
   Report bugs to <libfnr-dev@external.cisco.com>
 
