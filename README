@@ -3,7 +3,7 @@
 
   FNR represents "Flexible Naor and Reingold" 
 
-  FNR is a small domain block cipher to encrypt small domain
+  FNR is a small domain block cipher for encrypting
     objects ( < 128 bits ) like IPv4, MAC, Credit Card numbers etc.
 
   Quick Tour of this package
@@ -30,13 +30,16 @@
    
   Report bugs to <libfnr-dev@external.cisco.com>
 
- IMPORTANT:  This is an *experimental* cipher, not for production yet. 
+  IMPORTANT:  This is an *experimental* cipher, not for production yet. 
  
- FNR has been accepted for publication in
-   Fourth International Conference on Security, Privacy, and Applied Cryptography Engineering (SPACE 2014)
+  Applications of this scheme could be found at
+	http://sashank.github.io/libfnr/
 
- FNR is designed by 
+  Java extensions for this library could be found at
+	https://github.com/sashank/jfnr
+
+  FNR is designed by 
       Sashank Dara (sadara@cisco.com), 
       Scott Fluhrer (sfluhrer@cisco.com)
 
- Copyright (C) 2014 , Cisco Systems Inc.
+  Copyright (C) 2014 , Cisco Systems Inc.

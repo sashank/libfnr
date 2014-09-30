@@ -41,7 +41,7 @@ old?
 *.exe
 *.out
 *.app
-
+.libs
 src/fnr
 test/cctest
 test/ipv4test

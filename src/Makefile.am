@@ -1,13 +1,10 @@
 # Copyright (c) 2014 Cisco Systems, Inc.
 
-noinst_LIBRARIES=libfnr.a
-libfnr_a_SOURCES=fnr.c fnr.h
+lib_LTLIBRARIES = libfnr.la
+libfnr_la_SOURCES = fnr.c fnr.h
+libfnr_la_LDFLAGS = -version-info 1:0:0
 
-libfnr_a_LIBADD = $(LIBSSL)
-
-#bin_PROGRAMS = fnr
-#fnr_SOURCES = main.c
-#fnr_LDADD = libfnr.a
+libfnr_la_LIBADD = $(LIBSSL)
 
 if DEBUG
     AM_CFLAGS = -g3 -O0
