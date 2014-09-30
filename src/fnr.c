@@ -794,12 +794,12 @@ void FNR_shut(void){
 }
 
 void FNR_encrypt(const fnr_expanded_key *key,const fnr_expanded_tweak *tweak, const void *plaintext, void *ciphertext) {
-    /* Run the cipher, going through rounds 1,2,3,4,5,6,7 */
+    /* Run the cipher, going through (7) rounds 0,1,2,3,4,5,6 */
     FNR_operate( key, tweak, plaintext, ciphertext, 0, 1 );
 }
 
 void FNR_decrypt(const fnr_expanded_key *key,const fnr_expanded_tweak *tweak, const void *ciphertext, void *plaintext) {
-    /* Run the cipher, going through rounds 7,6,5,4,3,2,1 */
+    /* Run the cipher, going through (7) rounds 6,5,4,3,2,1,0 */
     FNR_operate( key, tweak, ciphertext, plaintext, N_ROUND-1, -1 );
 }
 
