@@ -57,7 +57,10 @@ AC_CHECK_HEADER([openssl/aes.h], [],
 # Checks for library functions.
 AC_FUNC_MALLOC
 AC_CHECK_FUNCS([memset])
-AC_CHECK_LIB([ssl], [AES_set_encrypt_key], [],
+AC_CHECK_LIB([crypto], [AES_set_encrypt_key], [],
+    [AC_MSG_NOTICE([Cannot find libcrypto])
+     AC_MSG_ERROR([Cannot continue])])
+AC_CHECK_LIB([ssl], [SSL_set_msg_callback], [],
     [AC_MSG_NOTICE([Cannot find libssl])
      AC_MSG_ERROR([Cannot continue])])
 
