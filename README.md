@@ -4,7 +4,7 @@
   FNR represents *Flexible Naor and Reingold* 
 
   FNR is a small domain block cipher for encrypting
-    objects ( < 128 bits ) like IPv4, MAC, Credit Card numbers etc.
+    objects ( < 128 bits ) like IPv4, MAC, Time Stamps, Credit Card numbers etc.
 
   **Motivation and Applications** of this scheme could be found [here!]
 	(http://cisco.github.io/libfnr/).
